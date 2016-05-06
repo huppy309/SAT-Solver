@@ -81,21 +81,24 @@ public class DimacsParser
 
 					for(int j = 0 ; j < split.length ; j++)
 					{
-						if(Integer.parseInt(split[j]) == 0)
+						if(!split[j].equals(""))
 						{
-							endOfClause = true;
-						}
-						else
-						{
-							int literal = Integer.parseInt(split[j]);
-
-							if(literal > 0)
+							if(Integer.parseInt(split[j]) == 0)
 							{
-								clause.addDisjunct(new Literal(literal, true));
+								endOfClause = true;
 							}
 							else
 							{
-								clause.addDisjunct(new Literal(literal * -1, false));
+								int literal = Integer.parseInt(split[j]);
+
+								if(literal > 0)
+								{
+									clause.addDisjunct(new Literal(literal, true));
+								}
+								else
+								{
+									clause.addDisjunct(new Literal(literal * -1, false));
+								}
 							}
 						}
 					}

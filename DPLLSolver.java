@@ -270,9 +270,9 @@ public class DPLLSolver
 		while(modelSize != numberOfLiterals)
 		{
 			/* DEBUGGING */
-			for(Literal c : model)
-				System.out.print(c.toString() + " ");
-			System.out.println();
+			// for(Literal c : model)
+			// 	System.out.print(c.toString() + " ");
+			// System.out.println();
 
 			// for(Literal c : lastGuess)
 			// 	System.out.print(c.toString() + " ");

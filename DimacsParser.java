@@ -1,5 +1,8 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
 
 /* A class responsible for parsing files in the DIMACS format.
    The primary parseDimacs() method returns a list of clauses */
@@ -38,7 +41,7 @@ public class DimacsParser
 		}
 		catch(FileNotFoundException e)
 		{
-			System.out.println("File not found! Exitting...");
+			System.out.println("File not found! Exiting...");
 			System.exit(0);
 		}
 
@@ -111,7 +114,7 @@ public class DimacsParser
 		}
 		catch(IOException e)
 		{
-			System.out.println("IOException! Exitting...");
+			System.out.println("IOException! Exiting...");
 			System.exit(0);
 		}
 
@@ -122,7 +125,7 @@ public class DimacsParser
 		}
 		catch(IOException e)
 		{
-			System.out.println("IOException! Exitting...");
+			System.out.println("IOException! Exiting...");
 			System.exit(0);
 		}
 

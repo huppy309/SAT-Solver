@@ -24,13 +24,14 @@ public class DPLLSolver
 
 		for(int i = 1 ; i <= numberOfLiterals ; i++)
 		{
-			workingSet.add(new Literal(i, true));
+			addToWorkingSet(new Literal(i, true));
 		}
 	}
 
 	/* Sorted insert for adding literals to working set */
 	private void addToWorkingSet(Literal guess)
 	{
+		// System.out.println(guess.toString());
 		for(int i = 0 ; i < workingSet.size() ; i++)
 		{
 			if(guess.get() < workingSet.get(i).get())
@@ -40,6 +41,46 @@ public class DPLLSolver
 			}
 		}
 		workingSet.add(new Literal(guess.get(), guess.getTruth()));
+	}
+
+	/* Removal of literal 'unit' from working set */
+	private void removeFromWorkingSet(Literal unit)
+	{
+		for(int i = 0 ; i < workingSet.size() ; i++)
+		{
+			if(workingSet.get(i).get() == unit.get())
+			{
+				workingSet.remove(i);
+				return;
+			}			
+		}
+	}
+
+	/* Checks if the current assignment to the disjuncts yields 'true' */
+	private boolean checkFormula(ArrayList<Literal> disjuncts)
+	{
+		boolean clauseTruth = false;
+					
+		/* Compute the disjunction of all disjuncts */			
+		for(Literal lit : disjuncts)
+		{
+			if(assignCount[lit.get() - 1] > 0)
+			{
+				boolean modelVal = truthValInModel(model, lit.get());
+				boolean clauseVal = lit.getTruth();
+				
+				if(modelVal == clauseVal)
+				{
+					clauseTruth = clauseTruth || true;
+				}
+				else
+				{
+					clauseTruth = clauseTruth || false;
+				}
+			}
+		}
+
+		return clauseTruth;
 	}
 
 	/* Finds the truth value of Literal with value 'lit' in the model */
@@ -80,14 +121,7 @@ public class DPLLSolver
 					modelSize++;
 
 					/* Remove literal from working set */
-					for(int i = 0 ; i < workingSet.size() ; i++)
-					{
-						if(workingSet.get(i).get() == unit.get())
-						{
-							workingSet.remove(i);
-							i--;
-						}
-					}
+					removeFromWorkingSet(unit);
 
 					/* Increment assign count for this literal */
 					assignCount[unit.get() - 1]++;
@@ -98,11 +132,7 @@ public class DPLLSolver
 				else
 				{
 					/* Check for contradiction */
-					if(!unit.getTruth() && truthValInModel(model, unit.get()))
-					{
-						return -1;
-					}
-					if(unit.getTruth() && !truthValInModel(model, unit.get()))
+					if(unit.getTruth() != truthValInModel(model, unit.get()))
 					{
 						return -1;
 					}
@@ -127,38 +157,26 @@ public class DPLLSolver
 				/* Check if it is unit clause */
 				if(unassignedCount == 1)
 				{
-					/* Add the literal assignment to the model */
-					model.add(new Literal(unit.get(), unit.getTruth()));
-					modelSize++;
+					if(!checkFormula(disjuncts))
+					{
+						/* Add the literal assignment to the model */
+						model.add(new Literal(unit.get(), unit.getTruth()));
+						modelSize++;
 
-					/* Increment assign count for this literal */
-					assignCount[unit.get() - 1]++;
+						/* Remove literal from working set */
+						removeFromWorkingSet(unit);
+					
+						/* Increment assign count for this literal */
+						assignCount[unit.get() - 1]++;
 
-					return 1;
+						return 1;
+					}
 				}
 				/* Check for conflict */
 				else if(unassignedCount == 0)
 				{
-					/* Compute the disjunction of all disjuncts */
-					boolean clauseTruth = false;
-					
-					for(Literal lit : disjuncts)
-					{
-						boolean modelVal = truthValInModel(model, lit.get());
-						boolean clauseVal = lit.getTruth();
-						
-						if(modelVal == clauseVal)
-						{
-							clauseTruth = clauseTruth || true;
-						}
-						else
-						{
-							clauseTruth = clauseTruth || false;
-						}
-					}
-
 					/* Conflict present if false */
-					if(!clauseTruth)
+					if(!checkFormula(disjuncts))
 					{
 						return -1;
 					}
@@ -210,16 +228,34 @@ public class DPLLSolver
 			/* The most recent guess */
 			if(guess.get() == lastGuess.get(lastGuess.size() - 1).get())
 			{
+				lastGuess.remove(lastGuess.size() - 1);
+				assignCount[guess.get() - 1] = 0;
+				
 				if(guess.getTruth())
 				{
-					addToWorkingSet(new Literal(guess.get(), false));
+					/* DEBUGGING */
+					// System.out.println(guess.toString());
+					
+					/* Guess the negated literal now */
+					model.add(new Literal(guess.get(), false));
+					modelSize++;
+
+					/* Increment assign count for this literal */
+					assignCount[guess.get() - 1]++;
+
+					/* Mark this guess as the most recent one */
+					lastGuess.add(new Literal(guess.get(), false));
 				}
-				lastGuess.remove(lastGuess.size() - 1);
+				else
+				{
+					guess = null;
+				}
 			}
 			/* Literals deduced using unit propagation */
 			else
 			{
 				addToWorkingSet(guess);
+				assignCount[guess.get() - 1] = 0;
 				guess = null;
 			}
 
@@ -233,6 +269,16 @@ public class DPLLSolver
 		/* Work on the model recursively until solution found */
 		while(modelSize != numberOfLiterals)
 		{
+			/* DEBUGGING */
+			// for(Literal c : model)
+			// 	System.out.print(c.toString() + " ");
+			// System.out.println();
+
+			// for(Literal c : lastGuess)
+			// 	System.out.print(c.toString() + " ");
+			// System.out.println();
+
+			
 			/* Attempt deduction */
 			int deduction = deduce(conjucts);
 

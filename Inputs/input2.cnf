@@ -1,0 +1,7 @@
+c  unit_clauses.cnf
+c
+p cnf 4 4
+1 0
+-2 0
+2 0
+4 0

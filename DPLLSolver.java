@@ -172,15 +172,6 @@ public class DPLLSolver
 						return 1;
 					}
 				}
-				/* Check for conflict */
-				else if(unassignedCount == 0)
-				{
-					/* Conflict present if false */
-					if(!checkFormula(disjuncts))
-					{
-						return -1;
-					}
-				}
 			}
 		}
 
@@ -221,7 +212,7 @@ public class DPLLSolver
 		/* Restore the model and workingSet to the state at the most recent guess */
 		Literal guess = null;
 
-		while(guess == null && modelSize != 0)
+		while(guess == null && lastGuess.size() != 0)
 		{
 			guess = model.remove(modelSize - 1);
 
@@ -337,6 +328,7 @@ public class DPLLSolver
 					/* Exhausted the model */
 					if(modelSize == 0)
 					{
+						System.out.println("MODEL EXHAUSTED");
 						return null;
 					}
 				}
@@ -353,12 +345,6 @@ public class DPLLSolver
 
 				/* Restore state to most recent guess */
 				backTrack();
-			}
-			/* Unsatisfiability confirmed */
-			else if(deduction == -2)
-			{
-				System.out.println("UNSATISFIABLE");
-				return null;
 			}
 		}
 

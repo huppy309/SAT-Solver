@@ -1,4 +1,4 @@
-import java.util.*;
+import java.util.ArrayList;
 
 /* Defines a clause as a list of disjuncts */
 public class Clause

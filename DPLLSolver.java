@@ -61,8 +61,7 @@ public class DPLLSolver
 	/* Unit Propagation. Returns:
 			1: Unit clause exists/ Unit propagation performed
 			0: No unit clause exists.
-		   -1: Conflict 
-		   -2: Unsat 		*/
+		   -1: Conflict 		*/
 	private int deduce(ArrayList<Clause> conjuncts)
 	{
 		/* Find a unit clause */
@@ -138,7 +137,7 @@ public class DPLLSolver
 					return 1;
 				}
 				/* Check for conflict */
-				else if(unassignedCount == disjuncts.size())
+				else if(unassignedCount == 0)
 				{
 					/* Compute the disjunction of all disjuncts */
 					boolean clauseTruth = false;
@@ -148,11 +147,7 @@ public class DPLLSolver
 						boolean modelVal = truthValInModel(model, lit.get());
 						boolean clauseVal = lit.getTruth();
 						
-						if(!modelVal && !clauseVal)
-						{
-							clauseTruth = clauseTruth || true;
-						}
-						else if(modelVal && clauseVal)
+						if(modelVal == clauseVal)
 						{
 							clauseTruth = clauseTruth || true;
 						}
@@ -217,8 +212,9 @@ public class DPLLSolver
 			{
 				if(guess.getTruth())
 				{
-					addToWorkingSet(guess);
+					addToWorkingSet(new Literal(guess.get(), false));
 				}
+				lastGuess.remove(lastGuess.size() - 1);
 			}
 			/* Literals deduced using unit propagation */
 			else
@@ -246,6 +242,7 @@ public class DPLLSolver
 				/* Perform Pure Literal Assignment. Return Unsat if no more guesses left */
 				if(!guess())
 				{
+					System.out.println("WORKSET EMPTIED");
 					return null;
 				}
 			}
@@ -255,6 +252,7 @@ public class DPLLSolver
 				/* If no guess was made */
 				if(lastGuess.size() == 0)
 				{
+					System.out.println("NO GUESSES");
 					return null;
 				}
 
@@ -264,6 +262,7 @@ public class DPLLSolver
 			/* Unsatisfiability confirmed */
 			else if(deduction == -2)
 			{
+				System.out.println("UNSATISFIABLE");
 				return null;
 			}
 		}

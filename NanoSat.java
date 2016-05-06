@@ -10,7 +10,7 @@ public class NanoSat
 {
 	private static DimacsParser parser;
 	private static DPLLSolver solver;
-	private static ArrayList<Clause> conjucts;
+	private static ArrayList<Clause> conjuncts;
 
 	/* Prints the returned model from the solver */
 	private static void printModel(ArrayList<Literal> model)
@@ -19,12 +19,12 @@ public class NanoSat
 		{
 			if(lit.getTruth())
 			{
-				System.out.print(Math.abs(lit.get()));
+				System.out.print(lit.get());
 				System.out.print(" ");
 			}
 			else
 			{
-				System.out.print(Math.abs(lit.get()) * -1);
+				System.out.print(lit.get() * -1);
 				System.out.print(" ");
 			}
 		}
@@ -44,11 +44,11 @@ public class NanoSat
 
 		/* Initialize parser and parse input file */
 		parser = new DimacsParser(args[0]);
-		conjucts = parser.parseDimacs();
+		conjuncts = parser.parseDimacs();
 
 		/* Apply DPLL and return the model */
 		solver = new DPLLSolver(parser.getNumLiterals());
-		ArrayList<Literal> model = solver.findModel(conjucts);
+		ArrayList<Literal> model = solver.findModel(conjuncts);
 
 		/* Print output */
 		if(model == null)

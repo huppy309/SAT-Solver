@@ -221,7 +221,7 @@ public class DPLLSolver
 		/* Restore the model and workingSet to the state at the most recent guess */
 		Literal guess = null;
 
-		while(guess == null)
+		while(guess == null && modelSize != 0)
 		{
 			guess = model.remove(modelSize - 1);
 
@@ -324,7 +324,21 @@ public class DPLLSolver
 				/* Conflict caught*/
 				if(conflict(conjuncts))
 				{
-					return null;
+					/* If no guess was made */
+					if(lastGuess.size() == 0)
+					{
+						System.out.println("NO GUESSES");
+						return null;
+					}
+
+					/* Restore state to most recent guess */
+					backTrack();
+
+					/* Exhausted the model */
+					if(modelSize == 0)
+					{
+						return null;
+					}
 				}
 			}
 			/* Conflict found. Must backtrack to last guess */

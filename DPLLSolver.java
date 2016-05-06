@@ -141,11 +141,25 @@ public class DPLLSolver
 				else if(unassignedCount == disjuncts.size())
 				{
 					/* Compute the disjunction of all disjuncts */
-					boolean clauseTruth = true;
+					boolean clauseTruth = false;
 					
 					for(Literal lit : disjuncts)
 					{
-						clauseTruth = clauseTruth || truthValInModel(model, lit.get());
+						boolean modelVal = truthValInModel(model, lit.get());
+						boolean clauseVal = lit.getTruth();
+						
+						if(!modelVal && !clauseVal)
+						{
+							clauseTruth = clauseTruth || true;
+						}
+						else if(modelVal && clauseVal)
+						{
+							clauseTruth = clauseTruth || true;
+						}
+						else
+						{
+							clauseTruth = clauseTruth || false;
+						}
 					}
 
 					/* Conflict present if false */

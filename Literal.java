@@ -29,8 +29,12 @@ public class Literal
 	public String toString()
 	{
 		if(truthValue)
+		{
 			return Integer.toString(lit);
+		}
 		else
+		{
 			return Integer.toString(lit * -1);
+		}
 	}
 }

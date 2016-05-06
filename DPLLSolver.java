@@ -233,9 +233,6 @@ public class DPLLSolver
 				
 				if(guess.getTruth())
 				{
-					/* DEBUGGING */
-					// System.out.println(guess.toString());
-					
 					/* Guess the negated literal now */
 					model.add(new Literal(guess.get(), false));
 					modelSize++;
@@ -263,8 +260,37 @@ public class DPLLSolver
 		}
 	}
 
+	/* Computes the disjunction of all clauses that can be resolved to a boolean value */
+	private boolean conflict(ArrayList<Clause> conjuncts)
+	{
+		for(Clause c : conjuncts)
+		{
+			/* Find how many literals are unassigned */
+			int unassignedCount = 0;
+
+			for(Literal lit : c.get())
+			{
+				if(assignCount[lit.get() - 1] == 0)
+				{
+					unassignedCount++;
+				}
+			}
+
+			/* Check if it is unit clause */
+			if(unassignedCount == 0)
+			{
+				if(!checkFormula(c.get()))
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
 	/* This method performs the DPLL algorithm on the conjuncts in order to find a model */
-	public ArrayList<Literal> findModel(ArrayList<Clause> conjucts)
+	public ArrayList<Literal> findModel(ArrayList<Clause> conjuncts)
 	{
 		/* Work on the model recursively until solution found */
 		while(modelSize != numberOfLiterals)
@@ -280,7 +306,7 @@ public class DPLLSolver
 
 			
 			/* Attempt deduction */
-			int deduction = deduce(conjucts);
+			int deduction = deduce(conjuncts);
 
 			/* Unit propagation not possible. Must guess a literal value */
 			if(deduction == 0)
@@ -289,6 +315,15 @@ public class DPLLSolver
 				if(!guess())
 				{
 					System.out.println("WORKSET EMPTIED");
+					return null;
+				}
+			}
+			/* Checking conflicts for other conjuncts */
+			else if(deduction == 1)
+			{
+				/* Conflict caught*/
+				if(conflict(conjuncts))
+				{
 					return null;
 				}
 			}

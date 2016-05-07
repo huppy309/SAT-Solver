@@ -232,6 +232,8 @@ public class DPLLSolver
 				}
 				else
 				{
+					addToWorkingSet(guess);
+					assignCount[guess.get() - 1] = 0;
 					guess = null;
 				}
 			}

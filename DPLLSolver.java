@@ -36,7 +36,7 @@ public class DPLLSolver
 		{
 			if(guess.get() < workingSet.get(i).get())
 			{
-				workingSet.add(i, new Literal(guess.get(), guess.getTruth()));
+				workingSet.add(i, new Literal(guess.get(), true));
 				return;
 			}
 		}
@@ -194,7 +194,7 @@ public class DPLLSolver
 		Literal pop = workingSet.remove(0);
 
 		/* Add to the model */
-		model.add(new Literal(pop.get(), pop.getTruth()));
+		model.add(new Literal(pop.get(), true));
 		modelSize++;
 
 		/* Increment assign count for this literal */
@@ -287,6 +287,7 @@ public class DPLLSolver
 		while(modelSize != numberOfLiterals)
 		{
 			/* DEBUGGING */
+
 			// for(Literal c : model)
 			// 	System.out.print(c.toString() + " ");
 			// System.out.println();

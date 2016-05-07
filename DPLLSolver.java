@@ -179,16 +179,14 @@ public class DPLLSolver
 		return 0;
 	}
 
-	/* Branching: choose the next value from the working set. Returns:
-			true: Successful Pure Literal Assignment / Backtrack
-		    false: Unsat  	*/
-	private boolean guess()
+	/* Branching: choose the next value from the working set */
+	private void guess()
 	{
 		/* Check unsatisfiablity */
 		if(workingSet.size() == 0)
 		{
 			backTrack();
-			return true;
+			return;
 		}
 		
 		/* Get next guess value from the working set */
@@ -203,8 +201,6 @@ public class DPLLSolver
 
 		/* Mark this guess as the most recent one */
 		lastGuess.add(pop);
-
-		return true;
 	}
 
 	/* Reconstruct the model and workingSet to the last checkpoint at the most recent guess */
@@ -307,12 +303,8 @@ public class DPLLSolver
 			/* Unit propagation not possible. Must guess a literal value */
 			if(deduction == 0)
 			{
-				/* Perform Pure Literal Assignment. Return Unsat if no more guesses left */
-				if(!guess())
-				{
-					System.out.println("WORKSET EMPTIED");
-					return null;
-				}
+				/* Perform Pure Literal Assignment */
+				guess();
 			}
 			/* Checking conflicts for other conjuncts */
 			else if(deduction == 1)

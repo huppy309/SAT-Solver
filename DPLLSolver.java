@@ -218,6 +218,7 @@ public class DPLLSolver
 				lastGuess.remove(lastGuess.size() - 1);
 				assignCount[guess.get() - 1] = 0;
 				
+				/* If 'true' has already been selected we now choose 'false'*/
 				if(guess.getTruth())
 				{
 					/* Guess the negated literal now */
@@ -230,6 +231,7 @@ public class DPLLSolver
 					/* Mark this guess as the most recent one */
 					lastGuess.add(new Literal(guess.get(), false));
 				}
+				/* Both values chosen. Restore working set for backtrack */
 				else
 				{
 					addToWorkingSet(guess);

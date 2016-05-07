@@ -45,6 +45,10 @@ public class NanoSat
 		parser = new DimacsParser(args[0]);
 		conjuncts = parser.parseDimacs();
 
+		/* DEBUGGING */
+		// for(Clause c : conjuncts)
+		// 	System.out.println(c);
+
 		/* Apply DPLL and return the model */
 		solver = new DPLLSolver(parser.getNumLiterals());
 		ArrayList<Literal> model = solver.findModel(conjuncts);

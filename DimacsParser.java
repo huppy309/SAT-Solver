@@ -5,7 +5,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /* A class responsible for parsing files in the DIMACS format.
-   The primary parseDimacs() method returns a list of clauses */
+   The primary parseDimacs() method returns a list of clauses 
+
+   TO DO: - General input parsing
+   		  - Better code refactoring		*/
 public class DimacsParser
 {
 	private String filename;
@@ -51,21 +54,37 @@ public class DimacsParser
 			/* Read until the "problem" line is reached */
 			while(!problemLineReached && (line = reader.readLine()) != null)
 			{
-				/* Debug: Output lines of input program */
-				// System.out.println(line);
-
 				/* Check if "problem" line has been reached */
-				if(line.length() > 0 && line.charAt(0) == 'p')
-				{
-					problemLineReached = true;
+				if(line.length() > 0)
+				{	
+					for(int i = 0 ; i < line.length() ; i++)
+					{
+						if(line.charAt(0) == 'p')
+						{
+							problemLineReached = true;
+						}
+					}
 				}
 			}
 
 			/* Read in the "problem" line */
 			split = line.split("\\s+");
 
-			numberOfLiterals = Integer.parseInt(split[2]);
-			numberOfClauses = Integer.parseInt(split[3]);
+			int i = 0;
+			while(split[i] == "")
+			{
+				i++;
+			}
+			i = i + 2;
+
+			numberOfLiterals = Integer.parseInt(split[i]);
+			
+			i++;
+			while(split[i] == "")
+			{
+				i++;
+			}
+			numberOfClauses = Integer.parseInt(split[i]);
 
 			/* Parse all clauses */
 			int clauseCounter = 0;

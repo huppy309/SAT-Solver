@@ -40,7 +40,7 @@ public class DPLLSolver
 				return;
 			}
 		}
-		workingSet.add(new Literal(guess.get(), guess.getTruth()));
+		workingSet.add(new Literal(guess.get(), true));
 	}
 
 	/* Removal of literal 'unit' from working set */
@@ -180,14 +180,15 @@ public class DPLLSolver
 	}
 
 	/* Branching: choose the next value from the working set. Returns:
-			true: Successful Pure Literal Assignment 
+			true: Successful Pure Literal Assignment / Backtrack
 		    false: Unsat  	*/
 	private boolean guess()
 	{
 		/* Check unsatisfiablity */
 		if(workingSet.size() == 0)
 		{
-			return false;
+			backTrack();
+			return true;
 		}
 		
 		/* Get next guess value from the working set */
@@ -296,6 +297,9 @@ public class DPLLSolver
 			// 	System.out.print(c.toString() + " ");
 			// System.out.println();
 
+			// for(Literal c : workingSet)
+			// 	System.out.print(c.toString() + " ");
+			// System.out.println();
 			
 			/* Attempt deduction */
 			int deduction = deduce(conjuncts);

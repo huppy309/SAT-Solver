@@ -31,7 +31,6 @@ public class DPLLSolver
 	/* Sorted insert for adding literals to working set */
 	private void addToWorkingSet(Literal guess)
 	{
-		// System.out.println(guess.toString());
 		for(int i = 0 ; i < workingSet.size() ; i++)
 		{
 			if(guess.get() < workingSet.get(i).get())
@@ -193,7 +192,7 @@ public class DPLLSolver
 		Literal pop = workingSet.remove(0);
 
 		/* Add to the model */
-		model.add(new Literal(pop.get(), true));
+		model.add(new Literal(pop.get(), pop.getTruth()));
 		modelSize++;
 
 		/* Increment assign count for this literal */
@@ -209,7 +208,7 @@ public class DPLLSolver
 		/* Restore the model and workingSet to the state at the most recent guess */
 		Literal guess = null;
 
-		while(guess == null && lastGuess.size() != 0)
+		while(guess == null && modelSize != 0)
 		{
 			guess = model.remove(modelSize - 1);
 

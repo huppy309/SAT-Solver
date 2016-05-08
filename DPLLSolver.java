@@ -5,9 +5,13 @@ public class DPLLSolver
 	private int modelSize;
 	private int numberOfLiterals;
 	private int[] assignCount;
+	
 	private ArrayList<Literal> lastGuess;
 	private ArrayList<Literal> model;
 	private ArrayList<Literal> workingSet;
+	private ArrayList<Clause> conjuncts; 
+
+	private Clause lastDeductionClause;
 
 	public DPLLSolver(int _numberOfLiterals) 
 	{
@@ -15,6 +19,7 @@ public class DPLLSolver
 		numberOfLiterals = _numberOfLiterals;
 		assignCount = new int[numberOfLiterals];
 		lastGuess = new ArrayList<Literal>();
+		conjuncts = new ArrayList<Clause>();
 
 		/* Initialize the model */
 		model = new ArrayList<Literal>();
@@ -26,6 +31,9 @@ public class DPLLSolver
 		{
 			addToWorkingSet(new Literal(i, true));
 		}
+
+		/* No deductions yet */
+		lastDeductionClause = null;
 	}
 
 	/* Sorted insert for adding literals to working set */
@@ -102,8 +110,10 @@ public class DPLLSolver
 			1: Unit clause exists/ Unit propagation performed
 			0: No unit clause exists.
 		   -1: Conflict 		*/
-	private int deduce(ArrayList<Clause> conjuncts)
+	private int deduce()
 	{
+		int clauseIndex = 0;
+
 		/* Find a unit clause */
 		for(Clause c : conjuncts)
 		{
@@ -125,6 +135,9 @@ public class DPLLSolver
 					/* Increment assign count for this literal */
 					assignCount[unit.get() - 1]++;
 
+					/* CDCL: Set the last deduction clause */
+					lastDeductionClause = c;
+
 					return 1;
 				}
 				/* Literal already assigned a value */
@@ -133,6 +146,9 @@ public class DPLLSolver
 					/* Check for contradiction */
 					if(unit.getTruth() != truthValInModel(model, unit.get()))
 					{
+						/* CDCL: Add new clause for performance */
+						cdcl(clauseIndex);
+
 						return -1;
 					}
 				}
@@ -168,10 +184,15 @@ public class DPLLSolver
 						/* Increment assign count for this literal */
 						assignCount[unit.get() - 1]++;
 
+						/* CDCL: Set the last deduction clause */
+						lastDeductionClause = c;
+
 						return 1;
 					}
 				}
 			}
+
+			clauseIndex++;
 		}
 
 		/* No unit clause found */
@@ -200,6 +221,36 @@ public class DPLLSolver
 
 		/* Mark this guess as the most recent one */
 		lastGuess.add(pop);
+	}
+
+	/* Add new clause constructed from the conflicting condition */
+	private void cdcl(int clauseIndex)
+	{
+		/* Initialize new clause */
+		Clause learn = new Clause();
+		ArrayList<Literal> conflictClause = conjuncts.get(clauseIndex).get();
+
+		/* Construct the new clause from the conflicting condition */
+		Literal conflictingLiteral = model.get(modelSize - 1);
+
+		for(Literal lit : conflictClause)
+		{
+			if(!lit.equals(conflictingLiteral) && !learn.get().contains(lit))
+			{
+				learn.addDisjunct(lit);
+			}
+		}
+
+		for(Literal lit : lastDeductionClause.get())
+		{
+			if(!lit.equals(conflictingLiteral) && !learn.get().contains(lit))
+			{
+				learn.addDisjunct(lit);
+			}
+		}
+
+		/* Add the new clause to the set of conjuncts */
+		conjuncts.add(learn);
 	}
 
 	/* Reconstruct the model and workingSet to the last checkpoint at the most recent guess */
@@ -252,8 +303,10 @@ public class DPLLSolver
 	}
 
 	/* Computes the disjunction of all clauses that can be resolved to a boolean value */
-	private boolean conflict(ArrayList<Clause> conjuncts)
+	private boolean conflict()
 	{
+		int clauseIndex = 0;
+
 		for(Clause c : conjuncts)
 		{
 			/* Find how many literals are unassigned */
@@ -272,17 +325,25 @@ public class DPLLSolver
 			{
 				if(!checkFormula(c.get()))
 				{
+					/* CDCL: Add new clause for performance */
+					cdcl(clauseIndex);
+
 					return true;
 				}
 			}
+
+			clauseIndex++;
 		}
 
 		return false;
 	}
 
 	/* This method performs the DPLL algorithm on the conjuncts in order to find a model */
-	public ArrayList<Literal> findModel(ArrayList<Clause> conjuncts)
+	public ArrayList<Literal> findModel(ArrayList<Clause> _conjuncts)
 	{
+		/* Store the clauses/conjuncts into the object */
+		conjuncts = _conjuncts;
+
 		/* Work on the model recursively until solution found */
 		while(modelSize != numberOfLiterals)
 		{
@@ -301,7 +362,7 @@ public class DPLLSolver
 			// System.out.println();
 			
 			/* Attempt deduction */
-			int deduction = deduce(conjuncts);
+			int deduction = deduce();
 
 			/* Unit propagation not possible. Must guess a literal value */
 			if(deduction == 0)
@@ -313,7 +374,7 @@ public class DPLLSolver
 			else if(deduction == 1)
 			{
 				/* Conflict caught*/
-				if(conflict(conjuncts))
+				if(conflict())
 				{
 					/* If no guess was made */
 					if(lastGuess.size() == 0)

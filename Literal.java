@@ -26,6 +26,12 @@ public class Literal
 	}
 
 	@Override
+	public boolean equals(Object l)
+	{
+		return (lit == ((Literal) l).get());
+	}
+
+	@Override
 	public String toString()
 	{
 		if(truthValue)
